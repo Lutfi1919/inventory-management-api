@@ -12,8 +12,8 @@ app.get('/', (req: Request, res: Response) => {
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
-      success: true,
-      message: "Service is running"
+    success: true,
+    message: "Service is running"
   })
 })
 
