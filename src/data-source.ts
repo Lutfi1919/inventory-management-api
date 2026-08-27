@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { Category } from "./entities/Category.js";
-import { Supplier } from "./entities/Supplier.js";
-import { Product } from "./entities/Product.js";
+import { Category } from "./entities/Category.ts";
+import { Supplier } from "./entities/Supplier.ts";
+import { Product } from "./entities/Product.ts";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
