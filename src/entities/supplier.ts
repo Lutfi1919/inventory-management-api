@@ -1,28 +1,36 @@
-import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm"
-import { Product } from "./product.js"
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  PrimaryColumn,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from "typeorm";
+import { Product } from "./Product.js";
 
 @Entity()
 export class Supplier {
-    @PrimaryGeneratedColumn()
-    id!: number
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-    @Column({
-        type: "varchar",
-        length: 128
-    })
-    name!: string
+  @Column({
+    type: "varchar",
+    length: 128,
+  })
+  name!: string;
 
-    @OneToMany(() => Product, (product) => product.supplier)
-    products!: Product[]
-    
-    @CreateDateColumn({
-        type: "timestamp"
-    })
-    createdAt!: Date
+  @OneToMany(() => Product, (product) => product.supplier)
+  products!: Product[];
 
-    @UpdateDateColumn({
-        type: "timestamp",
-        nullable: true
-    })
-    updatedAt!: Date
+  @CreateDateColumn({
+    type: "timestamp",
+  })
+  createdAt!: Date;
+
+  @UpdateDateColumn({
+    type: "timestamp",
+    nullable: true,
+  })
+  updatedAt!: Date;
 }
