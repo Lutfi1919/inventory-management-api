@@ -9,6 +9,6 @@ export class Supplier {
     @Column()
     name!: string
 
-    @OneToMany(() => Product, (product) => product.supplierId)
+    @OneToMany(() => Product, (product) => product.supplier)
     products!: Product[]
 }
