@@ -9,18 +9,23 @@ export class Product {
     @PrimaryGeneratedColumn()
     id!: number
 
-    @Column({ unique: true })
+    @Column({ 
+        type: "varchar",
+        unique: true ,
+        length: 64
+    })
     sku!: string
 
     @Column({
+        type: "varchar",
         nullable: false,
         length: 128
     })
     name!: string
 
     @Column({
+        type: "text",
         nullable: false,
-        length: 128
     })
     description!: string
 
@@ -50,11 +55,14 @@ export class Product {
     @JoinColumn({ name: "supplierId" })
     supplier!: Supplier
 
-    @Column()
-	@CreateDateColumn()
+	@CreateDateColumn({
+        type: "timestamp"
+    })
 	createdAt!: Date
 
-    @Column({ nullable: true })
-    @UpdateDateColumn()
+    @UpdateDateColumn({
+        type: "timestamp",
+        nullable: true
+    })
     updatedAt!: Date
 }

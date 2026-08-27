@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, OneToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm"
 import { Product } from "./product.js"
 
 @Entity()
@@ -6,9 +6,24 @@ export class Category {
     @PrimaryGeneratedColumn()
     id!: number
 
-    @Column({ unique: true })    
+    @Column({ 
+        type: "varchar",
+        unique: true ,
+        length: 128
+    })    
     name!: string
 
     @OneToMany(() => Product, (product) => product.category)
     products!: Product[]
+    
+    @CreateDateColumn({
+        type: "timestamp"
+    })
+    createdAt!: Date
+
+    @UpdateDateColumn({
+        type: "timestamp",
+        nullable: true
+    })
+    updatedAt!: Date
 }
