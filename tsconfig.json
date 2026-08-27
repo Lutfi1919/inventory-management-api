@@ -12,6 +12,8 @@
     "types": [],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "allowImportingTsExtensions": true,
+    "emitDeclarationOnly": true,
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
