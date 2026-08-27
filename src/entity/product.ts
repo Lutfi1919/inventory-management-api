@@ -1,14 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, PrimaryColumn, JoinColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, PrimaryColumn, JoinColumn, CreateDateColumn, UpdateDateColumn, Check } from "typeorm"
 import { Category } from "./category.js"
 import { Supplier } from "./supplier.js"
 
-@Entity("products")
+@Check(`"price" >= 0`)
+@Check(`"stock" >= 0`)
+@Entity()
 export class Product {
     @PrimaryGeneratedColumn()
     id!: number
 
-    @PrimaryColumn()
-    sku!: number
+    @Column({ unique: true })
+    sku!: string
 
     @Column({
         nullable: false,
@@ -34,13 +36,19 @@ export class Product {
     })
     stock!: number
 
-    @ManyToOne(() => Category, (category) => category.products, { onDelete: "CASCADE" })
+    @ManyToOne(() => Category, (category) => category.products, { 
+        nullable: false,
+        onDelete: "RESTRICT" 
+    })
     @JoinColumn({ name: "categoryId" })
-    categoryId!: Category
+    category!: Category
 
-    @ManyToOne(() => Supplier, (supplier) => supplier.products, { onDelete: "CASCADE" })
+    @ManyToOne(() => Supplier, (supplier) => supplier.products, { 
+        nullable: false,
+        onDelete: "RESTRICT" 
+    })
     @JoinColumn({ name: "supplierId" })
-    supplierId!: Supplier
+    supplier!: Supplier
 
     @Column()
 	@CreateDateColumn()
