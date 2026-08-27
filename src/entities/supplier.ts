@@ -7,7 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Product } from "./Product.js";
+import { Product } from "./Product.ts";
 
 @Entity()
 export class Supplier {

@@ -9,8 +9,8 @@ import {
   UpdateDateColumn,
   Check,
 } from "typeorm";
-import { Category } from "./Category.js";
-import { Supplier } from "./Supplier.js";
+import { Category } from "./Category.ts";
+import { Supplier } from "./Supplier.ts";
 
 @Check(`"price" >= 0`)
 @Check(`"stock" >= 0`)
