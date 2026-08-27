@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { Category } from "./entities/category.js";
 import { Supplier } from "./entities/supplier.js";
@@ -11,5 +12,5 @@ export const AppDataSource = new DataSource({
     password: process.env.DB_PASSWORD ?? "1234",
     database: process.env.DB_DATABASE ?? "inventory_management",
     entities: [Category, Supplier, Product],
-    migrations: [__dirname + "/migrations/**/*{.js,.ts}"]
+    migrations: ["src/migrations/**/*{.ts,.js}"]
 })
