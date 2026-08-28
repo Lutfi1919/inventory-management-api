@@ -22,6 +22,10 @@ export class CategoryService {
     }
 
     async deleteCategory(id: number) {
+        const category = await this.categoryRepository.findOneBy({ id });
+        if (!category) {
+            return null
+        }
         return await this.categoryRepository.delete({ id })
     }
 
