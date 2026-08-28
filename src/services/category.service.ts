@@ -18,7 +18,16 @@ export class CategoryService {
     }
 
     async updateCategoryById(id: number, categoryData: Category) {
-        return await this.categoryRepository.update({ id }, categoryData);
+        const category = await this.categoryRepository.preload({
+            ...categoryData,
+            id,
+        });
+
+        if (!category) {
+            return null;
+        }
+
+        return await this.categoryRepository.save(category);
     }
 
     async deleteCategory(id: number) {
