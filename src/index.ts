@@ -1,7 +1,7 @@
 import express from "express";
 import type { Request, Response } from "express";
 import { AppDataSource } from "./data-source.ts";
-import categoryRoutes from "./routes/category.route.ts";
+import categoryRoutes from "./routes/category.routes.ts";
 
 const app = express();
 const port = 3000;
