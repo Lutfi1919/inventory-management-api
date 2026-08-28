@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { CategoryService } from "../service/category.service.ts";
+import { CategoryService } from "../services/category.service.ts";
 
 export class CategoryController {
     private categoryService = new CategoryService();
@@ -7,18 +7,56 @@ export class CategoryController {
     getAll = async (req: Request, res: Response) => {
         try {
             const categories = await this.categoryService.getAllCategory();
-            res.status(200).json({ message: "berhasil mengabil data", categories})
+            if (!categories) {
+                return res.status(400).json({ message: "data category kosong" })
+            }
+            return res.status(200).json({ message: "berhasil mengabil data", categories})
         } catch (error) {
-            res.status(500).json({ message: "gagal mengambil data!", error })
+            return res.status(500).json({ message: "gagal mengambil data!", error })
+        }
+    }
+
+    getById = async (req: Request, res: Response) => {
+        try {
+            const id = Number(req.params.id);
+            const category = await this.categoryService.getCategoryById(id);
+            if (!category) {
+                return res.status(400).json({ message: `data category dengan ID ${id} tidak ditemukan` })
+            }
+
+            return res.status(200).json({ message: "berhasil mengambil data berdasarkan ID", category })
+        } catch (error) {
+            return res.status(500).json({ message: "gagal mengambil data berdasarkan ID tersebut", error })
         }
     }
 
     create = async (req: Request, res: Response) => {
         try {
             const category = await this.categoryService.createCategory(req.body)
-            res.status(201).json({ message: "berhasil menmbuat data", category })
+            return res.status(201).json({ message: "berhasil menmbuat data", category })
         } catch (error) {
-            res.status(500).json({ message: "gagal membuat data!", error })
+            return res.status(500).json({ message: "gagal membuat data!", error })
+        }
+    }
+
+    patch = async (req: Request, res: Response) => {
+        try {
+            const id = Number(req.params.id)
+            const category = await this.categoryService.updateCategoryById(id, req.body)
+            if (!category) {
+                return res.status(400).json({ message: `data dengan ID ${id} tidak ditemukan` })
+            }
+            return res.status(201).json({ message: "berhasil meng-update data", category })
+        } catch (error) {
+            return res.status(500).json({ message: "gagal meng-update data berdasarkan ID tsb!", error })
+        }
+    }
+
+    delete = async (req: Request, res: Response) => {
+        try {
+            const id = Number(req.params.id)
+        } catch (error) {
+            
         }
     }
 }
