@@ -42,11 +42,13 @@ export class CategoryController {
     patch = async (req: Request, res: Response) => {
         try {
             const id = Number(req.params.id)
-            const category = await this.categoryService.updateCategoryById(id, req.body)
+            const category = await this.categoryService.getCategoryById(id)
             if (!category) {
                 return res.status(400).json({ message: `data dengan ID ${id} tidak ditemukan` })
+            } else {
+                const newCategory = await this.categoryService.updateCategoryById(id, req.body)
+                return res.status(201).json({ message: "berhasil meng-update data", category })
             }
-            return res.status(201).json({ message: "berhasil meng-update data", category })
         } catch (error) {
             return res.status(500).json({ message: "gagal meng-update data berdasarkan ID tsb!", error })
         }
@@ -59,7 +61,7 @@ export class CategoryController {
             if (!category) {
                 return res.status(400).json({ message: `data dengan ID ${id} tidak ditemukan` })
             }
-            return res.status(201).json({ message: "berhasil menghapus data", category })
+            return res.status(201).json({ message: "berhasil menghapus data" })
         } catch (error) {
             return res.status(500).json({ message: "gagal menghapus data berdasarkan ID tsb!", error })
         }
