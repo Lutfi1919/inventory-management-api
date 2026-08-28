@@ -55,8 +55,13 @@ export class CategoryController {
     delete = async (req: Request, res: Response) => {
         try {
             const id = Number(req.params.id)
+            const category = await this.categoryService.deleteCategory(id)
+            if (!category) {
+                return res.status(400).json({ message: `data dengan ID ${id} tidak ditemukan` })
+            }
+            return res.status(201).json({ message: "berhasil menghapus data", category })
         } catch (error) {
-            
+            return res.status(500).json({ message: "gagal menghapus data berdasarkan ID tsb!", error })
         }
     }
 }
