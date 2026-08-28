@@ -45,10 +45,10 @@ export class CategoryController {
             const category = await this.categoryService.getCategoryById(id)
             if (!category) {
                 return res.status(400).json({ message: `data dengan ID ${id} tidak ditemukan` })
-            } else {
-                const newCategory = await this.categoryService.updateCategoryById(id, req.body)
-                return res.status(201).json({ message: "berhasil meng-update data", category })
             }
+
+            const updatedCategory = await this.categoryService.updateCategoryById(id, req.body)
+            return res.status(200).json({ message: "berhasil meng-update data", category: updatedCategory })
         } catch (error) {
             return res.status(500).json({ message: "gagal meng-update data berdasarkan ID tsb!", error })
         }
