@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { AppDataSource } from "./data-source.ts";
 import categoryRoutes from "./routes/category.routes.ts";
 import supplierRoutes from "./routes/supplier.routes.ts";
+import productRoutes from "./routes/product.routes.ts";
 
 const app = express();
 const port = 3000;
@@ -22,6 +23,7 @@ app.get("/api/health", (req: Request, res: Response) => {
 
 app.use("/api/category", categoryRoutes);
 app.use("/api/supplier", supplierRoutes);
+app.use("/api/product", productRoutes);
 
 AppDataSource.initialize()
   .then(() => {
