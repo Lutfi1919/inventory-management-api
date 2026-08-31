@@ -31,6 +31,10 @@ export class SupplierService {
     }
 
     async deleteSupplierById(id: number) {
+        const supplier = await this.supplierRepository.findOneBy({ id });
+        if (!supplier) {
+            return null
+        }
         return await this.supplierRepository.delete({id})
     }
 }
