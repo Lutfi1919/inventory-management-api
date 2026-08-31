@@ -20,7 +20,7 @@ export class SupplierController {
             if (!supplier) {
                 return res.status(400).json({ message: `data supplier dengan ID: ${id} not found` })
             }
-            return res.status(200).json({ message: "berhasil mengambil data supplier berdasarkan ID tsb" })
+            return res.status(200).json({ message: "berhasil mengambil data supplier berdasarkan ID tsb", supplier })
         } catch (error) {
             return res.status(500).json({ message: "gagal mengambil data berdasarkan ID tsb", error })
         }
@@ -37,13 +37,11 @@ export class SupplierController {
 
     patch = async (req: Request, res: Response) => {
         try {
-            const id = Number(req.params.id)
-            const supplier = await this.supplierService.getSupplierById(id)
-            if (!supplier) {
+            const id = Number(req.params.id)            
+            const updatedSupplier = await this.supplierService.updateSupplierById(id, req.body)
+            if (!updatedSupplier) {
                 return res.status(400).json({ message: `data dengan ID ${id} tidak ditemukan` })
             }
-
-            const updatedSupplier = await this.supplierService.updateSupplierById(id, req.body)
             return res.status(201).json({ message: `data dengan ID ${id} berhasil di update`, updatedSupplier })
         } catch (error) {
             return res.status(500).json({ message: "gagal meng-update data", error })

@@ -42,12 +42,11 @@ export class CategoryController {
     patch = async (req: Request, res: Response) => {
         try {
             const id = Number(req.params.id)
-            const category = await this.categoryService.getCategoryById(id)
-            if (!category) {
+            const updatedCategory = await this.categoryService.updateCategoryById(id, req.body)
+            if (!updatedCategory) {
                 return res.status(400).json({ message: `data dengan ID ${id} tidak ditemukan` })
             }
 
-            const updatedCategory = await this.categoryService.updateCategoryById(id, req.body)
             return res.status(200).json({ message: "berhasil meng-update data", category: updatedCategory })
         } catch (error) {
             return res.status(500).json({ message: "gagal meng-update data berdasarkan ID tsb!", error })
