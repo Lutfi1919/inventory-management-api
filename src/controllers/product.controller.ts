@@ -19,9 +19,15 @@ export class ProductController {
             const rawcategoryId = req.query.categoryId
             const categoryId = Number(rawcategoryId)
 
+            const rawMinPrice = req.query.minPrice
+            const minPrice = Number(rawMinPrice)
+
+            const rawMaxPrice = req.query.maxPrice
+            const maxPrice = Number(rawMaxPrice)
+
             let sortOrder = (req.query.sortOrder as string || 'ASC').toUpperCase();
 
-            const products = await this.productService.getAllProduct(search, sortBy, sortOrder as 'ASC' | 'DESC', supplierId, categoryId)
+            const products = await this.productService.getAllProduct(search, sortBy, sortOrder as 'ASC' | 'DESC', supplierId, categoryId, minPrice, maxPrice)
 
             return res.status(200).json({ message: "berhasil mengambil data", products })
         } catch (error: any) {
