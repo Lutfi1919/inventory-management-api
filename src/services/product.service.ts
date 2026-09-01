@@ -2,13 +2,14 @@ import { AppDataSource } from "../data-source.ts";
 import { Product } from "../entities/Product.ts";
 import { Supplier } from "../entities/Supplier.ts";
 import { Category } from "../entities/Category.ts";
+import { error } from "node:console";
 
 export class ProductService {
     private productRepository = AppDataSource.getRepository(Product);
     private supplierRepository = AppDataSource.getRepository(Supplier);
     private categoryRepository = AppDataSource.getRepository(Category);
 
-    async getAllProduct(search?: string, sortBy: string = 'createdAt', sortOrder: 'DESC' | 'ASC' = 'ASC', supplierId?: number, categoryId?: number, minPrice?: number, maxPrice?: number, page?: number, limit?: number ) {
+    async getAllProduct(search?: string, sortBy: string = 'createdAt', sortOrder: 'DESC' | 'ASC' = 'ASC', supplierId?: number, categoryId?: number, minPrice?: number, maxPrice?: number, page: number = 1, limit: number = 5 ) {
         const queryBuilder = this.productRepository.createQueryBuilder('product');
 
         queryBuilder.leftJoinAndSelect('product.supplier', 'supplier');
@@ -33,8 +34,14 @@ export class ProductService {
         } else if (minPrice && maxPrice) {
             queryBuilder.andWhere('product.price > :minPrice AND product.price < :maxPrice', { minPrice, maxPrice })
         }
+
+        const offset = (page - 1) * limit
+
+        if (limit) {
+            queryBuilder.limit(limit).offset(offset)
+        }
         
-        const columns = ['sku', 'name', 'price', 'createdAt'];
+        const columns = ['sku', 'name', 'price', 'categoryId', 'supplierId','createdAt'];
         const targetColumn = columns.includes(sortBy) ? sortBy : 'createdAt';
 
         queryBuilder.orderBy(`product.${targetColumn}`, sortOrder)
