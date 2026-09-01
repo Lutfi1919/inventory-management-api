@@ -10,14 +10,22 @@ export class ProductController {
 
     getAll = async (req: Request, res: Response) => {
         try {
-            const products = await this.productService.getAllProduct();
-            if (!products) {
-                return res.status(400).json({ message: "data produk kosong" })
-            }
+            const search = req.query.search as string
+            const sortBy = req.query.sortBy as string
+
+            const rawSupplierId = req.query.supplierId
+            const supplierId = Number(rawSupplierId)
+
+            const rawcategoryId = req.query.categoryId
+            const categoryId = Number(rawcategoryId)
+
+            let sortOrder = (req.query.sortOrder as string || 'ASC').toUpperCase();
+
+            const products = await this.productService.getAllProduct(search, sortBy, sortOrder as 'ASC' | 'DESC', supplierId, categoryId)
 
             return res.status(200).json({ message: "berhasil mengambil data", products })
-        } catch (error) {
-            return res.status(500).json({ message: "gagal mengambil data!", error })
+        } catch (error: any) {
+            return res.status(500).json({ message: "gagal mengambil data!", error: error.message })
         }
     }
 
