@@ -16,23 +16,23 @@ export class ProductService {
         queryBuilder.leftJoinAndSelect('product.category', 'category');
 
         if (supplierId ) {
-            queryBuilder.andWhere('product.supplierId = :supplierId', { supplierId })
+            queryBuilder.where('product.supplierId = :supplierId', { supplierId })
         }
 
         if (categoryId) {
-            queryBuilder.andWhere('product.categoryId = :categoryId', { categoryId })
+            queryBuilder.where('product.categoryId = :categoryId', { categoryId })
         }
 
         if (search) {
-            queryBuilder.where('product.name LIKE :search', { search: `%${search}%` });
+            queryBuilder.where('product.name ILIKE :search', { search: `%${search}%` });
         }
 
         if (minPrice) {
-            queryBuilder.andWhere('product.price > :minPrice', { minPrice })
+            queryBuilder.where('product.price > :minPrice', { minPrice })
         } else if (maxPrice) {
-            queryBuilder.andWhere('product.price < :maxPrice', { maxPrice })
+            queryBuilder.where('product.price < :maxPrice', { maxPrice })
         } else if (minPrice && maxPrice) {
-            queryBuilder.andWhere('product.price > :minPrice AND product.price < :maxPrice', { minPrice, maxPrice })
+            queryBuilder.where('product.price > :minPrice AND product.price < :maxPrice', { minPrice, maxPrice })
         }
 
         const offset = (page - 1) * limit
