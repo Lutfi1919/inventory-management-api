@@ -2,7 +2,6 @@ import { AppDataSource } from "../data-source.ts";
 import { Product } from "../entities/Product.ts";
 import { Supplier } from "../entities/Supplier.ts";
 import { Category } from "../entities/Category.ts";
-import { error } from "node:console";
 
 export class ProductService {
     private productRepository = AppDataSource.getRepository(Product);
