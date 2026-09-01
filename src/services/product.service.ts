@@ -26,7 +26,14 @@ export class ProductService {
             queryBuilder.where('product.name LIKE :search', { search: `%${search}%` });
         }
 
-
+        if (minPrice) {
+            queryBuilder.andWhere('product.price > :minPrice', { minPrice })
+        } else if (maxPrice) {
+            queryBuilder.andWhere('product.price < :maxPrice', { maxPrice })
+        } else if (minPrice && maxPrice) {
+            queryBuilder.andWhere('product.price > :minPrice AND product.price < :maxPrice', { minPrice, maxPrice })
+        }
+        
         const columns = ['sku', 'name', 'price', 'createdAt'];
         const targetColumn = columns.includes(sortBy) ? sortBy : 'createdAt';
 
