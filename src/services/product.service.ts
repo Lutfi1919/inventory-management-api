@@ -8,13 +8,31 @@ export class ProductService {
     private supplierRepository = AppDataSource.getRepository(Supplier);
     private categoryRepository = AppDataSource.getRepository(Category);
 
-    async getAllProduct() {
-        return await this.productRepository.find({
-            relations: {
-                supplier: true,
-                category: true,
-            },
-        });
+    async getAllProduct(search?: string, sortBy: string = 'createdAt', sortOrder: 'DESC' | 'ASC' = 'ASC', supplierId?: number, categoryId?: number, minPrice?: number, maxPrice?: number, page?: number, limit?: number ) {
+        const queryBuilder = this.productRepository.createQueryBuilder('product');
+
+        queryBuilder.leftJoinAndSelect('product.supplier', 'supplier');
+        queryBuilder.leftJoinAndSelect('product.category', 'category');
+
+        if (supplierId ) {
+            queryBuilder.andWhere('product.supplierId = :supplierId', { supplierId })
+        }
+
+        if (categoryId) {
+            queryBuilder.andWhere('product.categoryId = :categoryId', { categoryId })
+        }
+
+        if (search) {
+            queryBuilder.where('product.name LIKE :search', { search: `%${search}%` });
+        }
+
+
+        const columns = ['sku', 'name', 'price', 'createdAt'];
+        const targetColumn = columns.includes(sortBy) ? sortBy : 'createdAt';
+
+        queryBuilder.orderBy(`product.${targetColumn}`, sortOrder)
+
+        return await queryBuilder.getMany();
     }
 
     async getProductById(id: number) {
