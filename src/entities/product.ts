@@ -8,9 +8,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Check,
+  OneToMany,
 } from "typeorm";
 import { Category } from "./Category.ts";
 import { Supplier } from "./Supplier.ts";
+import { StockMovement } from "./StockMovement.ts";
 
 @Check(`"price" >= 0`)
 @Check(`"stock" >= 0`)
@@ -64,6 +66,9 @@ export class Product {
   })
   @JoinColumn({ name: "supplierId" })
   supplier!: Supplier;
+
+  @OneToMany(() => StockMovement, (stockMovement) => stockMovement.product)
+  stockMovements!: StockMovement[];
 
   @CreateDateColumn({
     type: "timestamp",
