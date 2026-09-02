@@ -10,4 +10,7 @@ router.post("/create", productController.create);
 router.patch("/:id", productController.patch);
 router.delete("/:id", productController.delete);
 
+router.post('/:id/stock', productController.updateStock);
+router.get('/:id/stock-history', productController.stockHistory);
+
 export default router;
