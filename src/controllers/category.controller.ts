@@ -8,20 +8,20 @@ export class CategoryController {
         try {
             const categories = await this.categoryService.getAllCategory();
             if (!categories) {
-                return res.status(400).json({ 
+                return res.status(404).json({ 
                     success: false,
-                    message: "data category kosong" 
+                    message: "data Category tidak ditemukan" 
                 })
             }
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengabil data", 
+                message: "berhasil mengambil data Categories", 
                 data: categories
             })
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal mengambil data!", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }
@@ -32,7 +32,7 @@ export class CategoryController {
             const id = Number(req.params.id);
             const category = await this.categoryService.getCategoryById(id);
             if (!category) {
-                return res.status(400).json({ 
+                return res.status(404).json({ 
                     success: false,
                     message: `data category dengan ID ${id} tidak ditemukan` 
                 })
@@ -40,13 +40,13 @@ export class CategoryController {
 
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengambil data berdasarkan ID", 
+                message: "berhasil mengambil data Category berdasarkan ID", 
                 data: category 
             })
         } catch (error: any) {
             return res.status(500).json({ 
                 success: true,
-                message: "gagal mengambil data berdasarkan ID tersebut", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }
@@ -57,13 +57,13 @@ export class CategoryController {
             const category = await this.categoryService.createCategory(req.body)
             return res.status(201).json({ 
                 success: true,
-                message: "berhasil menmbuat data category", 
+                message: "berhasil menmbuat data Category", 
                 data: category
             })
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal membuat data!", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }
@@ -74,7 +74,7 @@ export class CategoryController {
             const id = Number(req.params.id)
             const updatedCategory = await this.categoryService.updateCategoryById(id, req.body)
             if (!updatedCategory) {
-                return res.status(400).json({ 
+                return res.status(404).json({ 
                     success: false,
                     message: `data dengan ID ${id} tidak ditemukan` 
                 })
@@ -82,11 +82,15 @@ export class CategoryController {
 
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil meng-update data", 
+                message: "berhasil meng-update data Category", 
                 data: updatedCategory 
             })
-        } catch (error) {
-            return res.status(500).json({ message: "gagal meng-update data berdasarkan ID tsb!", error })
+        } catch (error: any) {
+            return res.status(500).json({ 
+                success: false,
+                message: "Internal server", 
+                error: error.message 
+            })
         }
     }
 
@@ -95,7 +99,7 @@ export class CategoryController {
             const id = Number(req.params.id)
             const category = await this.categoryService.deleteCategory(id)
             if (!category) {
-                return res.status(400).json({ 
+                return res.status(404).json({ 
                     success: false,
                     message: `data dengan ID ${id} tidak ditemukan` 
                 })
@@ -107,7 +111,7 @@ export class CategoryController {
         } catch (error: any) {
             return res.status(500).json({ 
                 success: true,
-                message: "gagal menghapus data berdasarkan ID tsb!", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }

@@ -27,7 +27,7 @@ export class ProductController {
             const page = Number(req.query.page) || 1
             const limit = Number(req.query.limit) || 5
 
-            const [datas, totalData] = await this.productRepository.findAndCount();
+            const [data, totalData] = await this.productRepository.findAndCount();
             const totalPages = Math.ceil(totalData / limit)
             if (page > totalPages) {
                 return res.status(400).json({ 
@@ -45,18 +45,16 @@ export class ProductController {
                 totalPages: totalPages
             }
 
-            const data = products;
-
             return res.status(200).json({ 
                 success: true,
                 message: "berhasil mengambil data", 
-                data, 
+                data: products, 
                 meta
             })
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal mengambil data!", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }
@@ -65,24 +63,25 @@ export class ProductController {
     getById = async (req: Request, res: Response) => {
         try {
             const id = Number(req.params.id);
-            const data = await this.productService.getProductById(id)
-            if (!data) {
+            const product = await this.productService.getProductById(id)
+            if (!product) {
                 return res.status(400).json({ 
                     success: false,
                     message: `data product dengan ID ${id} tidak ditemukan`
-                 })
+                })
             }
 
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengambil data berdasarkan ID", data
-             })
+                message: "berhasil mengambil data berdasarkan ID", 
+                data: product
+            })
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal mengambil data!", 
+                message: "Internal server error", 
                 error: error.message
-             })
+            })
         }
     }
 
@@ -106,16 +105,17 @@ export class ProductController {
                 })
             }
 
-            const data = await this.productService.createProduct(Number(supplierId), Number(categoryId), productData);
+            const product = await this.productService.createProduct(Number(supplierId), Number(categoryId), productData);
 
             return res.status(201).json({ 
                 success: true,
-                message: "berhasil membuat data product", data
+                message: "berhasil membuat data product", 
+                data: product
             })
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal membuat data produk!", 
+                message: "Internal server error", 
                 error: error.message
             })
         }
@@ -150,16 +150,15 @@ export class ProductController {
                 })
             }
 
-            const data = product
-
             return res.status(201).json({ 
                 success: true,
-                message: "berhasil meng-updte data product", data,
+                message: "berhasil meng-updte data Product", 
+                data: product,
             })
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal meng-update data produk!", 
+                message: "Internal server error", 
                 error: error.message
             })
         }
@@ -184,7 +183,7 @@ export class ProductController {
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal menghapus data produk!", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }
@@ -227,7 +226,7 @@ export class ProductController {
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal meng-update data stock produk!", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }
@@ -246,13 +245,13 @@ export class ProductController {
 
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengambil data", 
+                message: "berhasil mengambil data Stock History", 
                 data 
             })
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal mengambiil data stock-history produk!", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }

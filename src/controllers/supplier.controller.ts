@@ -15,7 +15,7 @@ export class SupplierController {
         } catch (error: any) {
             return res.status(500).json({
                 success: false,
-                message: "gagal mengambil data", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }
@@ -26,20 +26,20 @@ export class SupplierController {
             const id = Number(req.params.id)
             const supplier = await this.supplierService.getSupplierById(id)
             if (!supplier) {
-                return res.status(400).json({ 
+                return res.status(404).json({ 
                     success: false,
-                    message: `data supplier dengan ID: ${id} not found` 
+                    message: `data Supplier dengan ID: ${id} not found` 
                 })
             }
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengambil data supplier berdasarkan ID tsb", 
+                message: "berhasil mengambil data Supplier berdasarkan ID", 
                 data: supplier 
             })
         } catch (error: any) {
             return res.status(500).json({ 
                 success: true,
-                message: "gagal mengambil data berdasarkan ID tsb", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }
@@ -56,7 +56,7 @@ export class SupplierController {
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal membuat data", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }
@@ -67,7 +67,7 @@ export class SupplierController {
             const id = Number(req.params.id)            
             const updatedSupplier = await this.supplierService.updateSupplierById(id, req.body)
             if (!updatedSupplier) {
-                return res.status(400).json({ 
+                return res.status(404).json({ 
                     success: false,
                     message: `data dengan ID ${id} tidak ditemukan` 
                 })
@@ -80,7 +80,7 @@ export class SupplierController {
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal meng-update data", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }
@@ -91,19 +91,19 @@ export class SupplierController {
             const id = Number(req.params.id)
             const supplier = await this.supplierService.deleteSupplierById(id)
             if (!supplier) {
-                return res.status(400).json({ 
+                return res.status(404).json({ 
                     success: false,
-                    message: `data dengan ID ${id} tidak ditemukan` 
+                    message: `data Supplier dengan ID: ${id} tidak ditemukan` 
                 })
             }
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil menghapus data" 
+                message: "berhasil menghapus data Supplier berdasarkan ID" 
             })
         } catch (error: any) {
             return res.status(500).json({ 
                 success: false,
-                message: "gagal menghapus data", 
+                message: "Internal server error", 
                 error: error.message 
             })
         }
