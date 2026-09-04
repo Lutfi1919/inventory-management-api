@@ -1,10 +1,11 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { CategoryService } from "../services/category.service.ts";
+import Joi from "joi";
 
 export class CategoryController {
     private categoryService = new CategoryService();
 
-    getAll = async (req: Request, res: Response) => {
+    getAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const categories = await this.categoryService.getAllCategory();
             if (!categories) {
@@ -19,15 +20,11 @@ export class CategoryController {
                 data: categories
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 
-    getById = async (req: Request, res: Response) => {
+    getById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id);
             const category = await this.categoryService.getCategoryById(id);
@@ -44,32 +41,35 @@ export class CategoryController {
                 data: category 
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: true,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 
-    create = async (req: Request, res: Response) => {
+    create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const category = await this.categoryService.createCategory(req.body)
+            const schema = Joi.object({
+                name: Joi.string().trim().min(3).max(30).required().messages({
+                    "string.empty": "name wajib diisi",
+                    "string.min": "name minimal 3 karakter",
+                    "string.max": "name maksimal 30 karakter",
+                    "any.required": "name wajib diisi"
+                })
+            })
+            
+            const value = await schema.validateAsync(req.body) 
+
+            const category = await this.categoryService.createCategory(value)
             return res.status(201).json({ 
                 success: true,
                 message: "berhasil menmbuat data Category", 
                 data: category
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 
-    patch = async (req: Request, res: Response) => {
+    patch = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id)
             const updatedCategory = await this.categoryService.updateCategoryById(id, req.body)
@@ -86,15 +86,11 @@ export class CategoryController {
                 data: updatedCategory 
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 
-    delete = async (req: Request, res: Response) => {
+    delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id)
             const category = await this.categoryService.deleteCategory(id)
@@ -109,11 +105,7 @@ export class CategoryController {
                 message: "berhasil menghapus data" 
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: true,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 }
