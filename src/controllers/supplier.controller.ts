@@ -1,10 +1,11 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { SupplierService } from "../services/supplier.service.ts";
+import Joi from "joi";
 
 export class SupplierController {
     private supplierService = new SupplierService();
 
-    getAll = async (req: Request, res: Response) => {
+    getAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const suppliers = await this.supplierService.getAllSupplier()
             return res.status(200).json({ 
@@ -13,15 +14,11 @@ export class SupplierController {
                 data: suppliers
             })
         } catch (error: any) {
-            return res.status(500).json({
-                success: false,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 
-    getById = async (req: Request, res: Response) => {
+    getById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id)
             const supplier = await this.supplierService.getSupplierById(id)
@@ -37,56 +34,71 @@ export class SupplierController {
                 data: supplier 
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: true,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 
-    create = async (req: Request, res: Response) => {
+    create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const supplier = await this.supplierService.createSupplier(req.body)
+            const schema = Joi.object({
+                name: Joi.string().trim().min(3).max(30).required().messages({
+                    "string.empty": "name wajib diisi",
+                    "string.min": "name minimal 3 karakter",
+                    "string.max": "name maksimal 30 karakter",
+                    "any.required": "name wajib diisi"
+                })
+            })
+            
+            const value = await schema.validateAsync(req.body)
+            
+            const supplier = await this.supplierService.createSupplier(value)
+
             return res.status(201).json({ 
                 success: true,
                 message: "berhasil membuat data supplier", 
                 data: supplier 
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 
-    patch = async (req: Request, res: Response) => {
+    patch = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const id = Number(req.params.id)            
-            const updatedSupplier = await this.supplierService.updateSupplierById(id, req.body)
-            if (!updatedSupplier) {
+            const id = Number(req.params.id)
+            
+            let supplier = await this.supplierService.getSupplierById(id)
+            if (!supplier) {
                 return res.status(404).json({ 
                     success: false,
                     message: `data dengan ID ${id} tidak ditemukan` 
                 })
             }
+            
+            const schema = Joi.object({
+                name: Joi.string().trim().min(3).max(30).required().messages({
+                    "string.empty": "name wajib diisi",
+                    "string.min": "name minimal 3 karakter",
+                    "string.max": "name maksimal 30 karakter",
+                    "any.required": "name wajib diisi"
+                })
+            })
+
+            const value = await schema.validateAsync(req.body)
+
+            supplier = await this.supplierService.updateSupplierById(id, value)
+            
             return res.status(201).json({ 
                 success: true,
                 message: `data dengan ID ${id} berhasil di update`,
-                data: updatedSupplier 
+                data: supplier 
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 
-    delete = async (req: Request, res: Response) => {
+    delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id)
             const supplier = await this.supplierService.deleteSupplierById(id)
@@ -101,11 +113,7 @@ export class SupplierController {
                 message: "berhasil menghapus data Supplier berdasarkan ID" 
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 }
