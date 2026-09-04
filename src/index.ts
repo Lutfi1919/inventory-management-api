@@ -4,6 +4,7 @@ import { AppDataSource } from "./data-source.ts";
 import categoryRoutes from "./routes/category.routes.ts";
 import supplierRoutes from "./routes/supplier.routes.ts";
 import productRoutes from "./routes/product.routes.ts";
+import { errorHandler } from "./middlewares/error-handler.ts";
 
 const app = express();
 const port = 3000;
@@ -24,6 +25,8 @@ app.get("/api/health", (req: Request, res: Response) => {
 app.use("/api/category", categoryRoutes);
 app.use("/api/supplier", supplierRoutes);
 app.use("/api/product", productRoutes);
+
+app.use(errorHandler)
 
 AppDataSource.initialize()
   .then(() => {
