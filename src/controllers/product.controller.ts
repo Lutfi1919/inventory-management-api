@@ -1,9 +1,11 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { ProductService } from "../services/product.service.ts";
 import { CategoryService } from "../services/category.service.ts";
 import { SupplierService } from "../services/supplier.service.ts";
 import { Product } from "../entities/Product.ts";
 import { AppDataSource } from "../data-source.ts";
+import Joi from 'joi';
+import { InOut } from "../types/stock_movement.ts";
 
 export class ProductController {
     private productService = new ProductService();
@@ -12,7 +14,7 @@ export class ProductController {
 
     private productRepository = AppDataSource.getRepository(Product);
 
-    getAll = async (req: Request, res: Response) => {
+    getAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const search = req.query.search as string
             const sortBy = req.query.sortBy as string
@@ -52,15 +54,11 @@ export class ProductController {
                 meta
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 
-    getById = async (req: Request, res: Response) => {
+    getById = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id);
             const product = await this.productService.getProductById(id)
@@ -77,15 +75,11 @@ export class ProductController {
                 data: product
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message
-            })
+            next(error)
         }
     }
 
-    create = async (req: Request, res: Response) => {
+    create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { supplierId, categoryId, ...productData } = req.body;
 
@@ -105,7 +99,44 @@ export class ProductController {
                 })
             }
 
-            const product = await this.productService.createProduct(Number(supplierId), Number(categoryId), productData);
+            const schema = Joi.object({
+                sku: Joi.string().trim().min(5).required().messages({
+                    "string.empty": "sku wajib diisi",
+                    "string.trim": "tidak boleh ada spasi diawal/akhir",
+                    "string.min": "sku minimal 5 karakter",
+                    "any.required": "sku wajib diisi"
+                }),
+                name: Joi.string().trim().min(3).max(30).required().messages({
+                    "string.empty": "name wajib diisi",
+                    "string.trim": "tidak boleh ada spasi diawal/akhir",
+                    "string.min": "name minimal 3 karakter",
+                    "string.max": "name maksimal 30 karakter",
+                    "any.required": "name wajib diisi"
+                }),
+                description: Joi.string().trim().min(3).max(60).required().messages({
+                    "string.empty": "description wajib diisi",
+                    "string.trim": "tidak boleh ada spasi diawal/akhir",
+                    "string.min": "description minimal 3 karakter",
+                    "string.max": "description maksimal 60 karakter",
+                    "any.required": "description wajib diisi"
+                }),
+                price: Joi.number().integer().min(1).required().messages({
+                    "number.empty": "price wajib diisi",
+                    "number.integer": "price tidak boleh float",
+                    "number.min": "price minimal seharga 1",
+                    "any.required": "price wajib diisi"
+                }),
+                stock: Joi.number().integer().min(0).required().messages({
+                    "number.empty": "stock wajib diisi",
+                    "number.integer": "stock tidak boleh float",
+                    "number.min": "stock minimal 0",
+                    "any.required": "stock wajib diisi"
+                }),
+            })
+
+            const value = await schema.validateAsync(productData)
+
+            const product = await this.productService.createProduct(Number(supplierId), Number(categoryId), value);
 
             return res.status(201).json({ 
                 success: true,
@@ -113,15 +144,11 @@ export class ProductController {
                 data: product
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message
-            })
+            next(error)
         }
     }
 
-    patch = async (req: Request, res: Response) => {
+    patch = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id)
             const { supplierId, categoryId, ...productData } = req.body;
@@ -142,7 +169,44 @@ export class ProductController {
                 })
             }
 
-            const product = await this.productService.updateProductById(id, Number(supplierId), Number(categoryId), productData);
+            const schema = Joi.object({
+                sku: Joi.string().trim().min(5).required().messages({
+                    "string.empty": "sku wajib diisi",
+                    "string.trim": "tidak boleh ada spasi diawal/akhir",
+                    "string.min": "sku minimal 5 karakter",
+                    "any.required": "sku wajib diisi"
+                }),
+                name: Joi.string().trim().min(3).max(30).required().messages({
+                    "string.empty": "name wajib diisi",
+                    "string.trim": "tidak boleh ada spasi diawal/akhir",
+                    "string.min": "name minimal 3 karakter",
+                    "string.max": "name maksimal 30 karakter",
+                    "any.required": "name wajib diisi"
+                }),
+                description: Joi.string().trim().min(3).max(60).required().messages({
+                    "string.empty": "description wajib diisi",
+                    "string.trim": "tidak boleh ada spasi diawal/akhir",
+                    "string.min": "description minimal 3 karakter",
+                    "string.max": "description maksimal 60 karakter",
+                    "any.required": "description wajib diisi"
+                }),
+                price: Joi.number().integer().min(1).required().messages({
+                    "number.empty": "price wajib diisi",
+                    "number.integer": "price tidak boleh float",
+                    "number.min": "price minimal seharga 1",
+                    "any.required": "price wajib diisi"
+                }),
+                stock: Joi.number().integer().min(0).required().messages({
+                    "number.empty": "stock wajib diisi",
+                    "number.integer": "stock tidak boleh float",
+                    "number.min": "stock minimal 0",
+                    "any.required": "stock wajib diisi"
+                }),
+            })
+
+            const value = await schema.validateAsync(productData)
+
+            const product = await this.productService.updateProductById(id, Number(supplierId), Number(categoryId), value);
             if (!product) {
                 return res.status(404).json({ 
                     success: false,
@@ -156,15 +220,11 @@ export class ProductController {
                 data: product,
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message
-            })
+            next(error)
         }
     }
 
-    delete = async (req: Request, res: Response) => {
+    delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id)
             const product = await this.productService.deleteProductById(id)
@@ -181,15 +241,11 @@ export class ProductController {
             })
 
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 
-    updateStock = async (req: Request, res: Response) => {
+    updateStock = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id)
             const { ...stockMovementData } = req.body 
@@ -200,6 +256,28 @@ export class ProductController {
                     message: `product dengan ID: ${id} tidak ditemukan` 
                 });
             }
+
+            const schema = Joi.object({
+                type: Joi.string().valid(...Object.values(InOut)).required().messages({
+                    "string.empty": "type wajib diisi",
+                    "any.only": "Enum type salah",
+                    "any.required": "type wajib diisi"
+                }),
+                quantity: Joi.number().integer().min(1).required().messages({
+                    "number.empty": "quantity wajib diisi",
+                    "number.integer": "quantity tidak boleh float",
+                    "number.min": "quantity minimal 1",
+                    "any.required": "quantity wajib diisi"
+                }),
+                reason: Joi.string().trim().min(3).max(30).required().messages({
+                    "string.empty": "reason wajib diisi",
+                    "string.min": "reason minimal 3 karakter",
+                    "string.max": "reason maksimal 30 karakter",
+                    "any.required": "reason wajib diisi"
+                })
+            })
+
+            const value = await schema.validateAsync(stockMovementData)
 
             if (stockMovementData.quantity < 0) {
                 return res.status(400).json({ 
@@ -213,26 +291,21 @@ export class ProductController {
                 })
             }
 
-            const stockMovement = await this.productService.updateStockById(id, stockMovementData);
-            const data = stockMovement
+            const stockMovement = await this.productService.updateStockById(id, value);
 
             return res.status(201).json({ 
                 success: true,
                 message: "berhasil membuat movement stock dan mengubah stock product", 
-                data
+                data: stockMovement
             })
             
             
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 
-    stockHistory = async (req: Request, res: Response) => {
+    stockHistory = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id = Number(req.params.id)
             const data = await this.productService.getStockMovementsByProductId(id);
@@ -249,11 +322,7 @@ export class ProductController {
                 data 
             })
         } catch (error: any) {
-            return res.status(500).json({ 
-                success: false,
-                message: "Internal server error", 
-                error: error.message 
-            })
+            next(error)
         }
     }
 }
