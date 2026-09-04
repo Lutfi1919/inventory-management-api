@@ -8,7 +8,6 @@ export class ProductService {
     private productRepository = AppDataSource.getRepository(Product);
     private supplierRepository = AppDataSource.getRepository(Supplier);
     private categoryRepository = AppDataSource.getRepository(Category);
-    private stockMovementRepository = AppDataSource.getRepository(StockMovement);
 
     async getAllProduct(search?: string, sortBy: string = 'createdAt', sortOrder: 'DESC' | 'ASC' = 'ASC', supplierId?: number, categoryId?: number, minPrice?: number, maxPrice?: number, page: number = 1, limit: number = 5 ) {
         const queryBuilder = this.productRepository.createQueryBuilder('product');
@@ -18,26 +17,22 @@ export class ProductService {
 
         if (supplierId && !isNaN(supplierId)) {
             queryBuilder.where('product.supplierId = :supplierId', { supplierId });
-        } else {
-            return null
         }
 
         if (categoryId && !isNaN(categoryId)) {
             queryBuilder.where('product.categoryId = :categoryId', { categoryId });
-        } else {
-            return null
         }
         
         if (search) {
             queryBuilder.where('product.name ILIKE :search', { search: `%${search}%` });
         }
 
-        if (minPrice ) {
-            queryBuilder.where('product.price > :minPrice', { minPrice })
+        if (minPrice && maxPrice) {
+            queryBuilder.where('product.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice })
         } else if (maxPrice) {
             queryBuilder.where('product.price < :maxPrice', { maxPrice })
-        } else if (minPrice && maxPrice) {
-            queryBuilder.where('product.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice })
+        } else if (minPrice) {
+            queryBuilder.where('product.price > :minPrice', { minPrice })
         }
 
         const offset = (page - 1) * limit
@@ -124,25 +119,27 @@ export class ProductService {
     }
 
     async updateStockById(id: number, movementData: StockMovement) {
-        const product = await this.productRepository.findOneBy({ id });
-        if (!product) {
-            return null;
-        }
-
-        if (movementData.type === "IN") {
-            product.stock += movementData.quantity
-        } else if (movementData.type === "OUT") {
-            product.stock -= movementData.quantity
-        }
-
-        const updatedProduct = await this.productRepository.save(product);
-
-        const newStockMovement = this.stockMovementRepository.create({
-            ...movementData,
-            product: updatedProduct
+        return await AppDataSource.transaction(async (transactionalEntityManager) => {
+            const product = await transactionalEntityManager.findOneBy(Product, {id});
+            if (!product) {
+                return null;
+            }
+    
+            if (movementData.type === "IN") {
+                product.stock += movementData.quantity
+            } else if (movementData.type === "OUT") {
+                product.stock -= movementData.quantity
+            }
+    
+            const updatedProduct = await transactionalEntityManager.save(product);
+    
+            const newStockMovement = transactionalEntityManager.create(StockMovement, {
+                ...movementData,
+                product: updatedProduct
+            })
+    
+            return await transactionalEntityManager.save(newStockMovement);
         })
-
-        return await this.stockMovementRepository.save(newStockMovement);
     }
 
     async getStockMovementsByProductId(productId: number) {
