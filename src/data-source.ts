@@ -4,6 +4,7 @@ import { Category } from "./entities/Category.ts";
 import { Supplier } from "./entities/Supplier.ts";
 import { Product } from "./entities/Product.ts";
 import { StockMovement } from "./entities/StockMovement.ts";
+import { User } from "./entities/User.ts";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -12,6 +13,6 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME ?? "postgres",
   password: process.env.DB_PASSWORD ?? "1234",
   database: process.env.DB_DATABASE ?? "inventory_management",
-  entities: [Category, Supplier, Product, StockMovement],
+  entities: [Category, Supplier, Product, StockMovement, User],
   migrations: ["src/migrations/**/*{.ts,.js}"],
 });
