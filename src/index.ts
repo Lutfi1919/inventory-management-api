@@ -1,10 +1,13 @@
+import "dotenv/config";
 import express from "express";
 import type { Request, Response } from "express";
 import { AppDataSource } from "./data-source.ts";
 import categoryRoutes from "./routes/category.routes.ts";
 import supplierRoutes from "./routes/supplier.routes.ts";
 import productRoutes from "./routes/product.routes.ts";
+import userRoutes from "./routes/user.routes.ts";
 import { errorHandler } from "./middlewares/error-handler.ts";
+import { checkToken } from "./middlewares/auth.ts";
 
 const app = express();
 const port = 3000;
@@ -22,9 +25,10 @@ app.get("/api/health", (req: Request, res: Response) => {
   });
 });
 
-app.use("/api/category", categoryRoutes);
-app.use("/api/supplier", supplierRoutes);
-app.use("/api/product", productRoutes);
+app.use("/api/category", checkToken, categoryRoutes);
+app.use("/api/supplier", checkToken, supplierRoutes);
+app.use("/api/product", checkToken, productRoutes);
+app.use("/api/auth", userRoutes);
 
 app.use(errorHandler)
 
