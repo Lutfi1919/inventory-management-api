@@ -71,7 +71,16 @@ export class UserController {
             return res.status(200).json({
                 success: true,
                 message: "berhasil login",
-                data: result
+                data: {
+                    user: {
+                        id: result.user.id,
+                        name: result.user.name,
+                        email: result.user.email,
+                        createdAt: result.user.createdAt,
+                        updatedAt: result.user.updatedAt
+                    },
+                    token: result.token
+                }
             });
 
         } catch (error) {
