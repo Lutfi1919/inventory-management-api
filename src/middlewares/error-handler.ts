@@ -12,6 +12,14 @@ export const errorHandler = (error: any, req: Request, res: Response, next: Next
         })
     }
 
+    if (error.statusCode === 401 || error.statusCode === 403) {
+        return res.status(error.statusCode).json({
+            success: false,
+            message: error.message,
+            error: error.message
+        });
+    }
+
     return res.status(error.statusCode || 500).json({
         success: false,
         message: error.statusCode ? error.message : "Internal server error",
