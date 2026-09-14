@@ -15,7 +15,7 @@ export class UserService {
     async login(email: string, password: string) {
         const queryBuilder = this.userRepository.createQueryBuilder("user");
 
-        const user = await queryBuilder.select(["user.id", "user.name", "user.email"]).addSelect("user.password").where("user.email = :email", { email }).getOne();
+        const user = await queryBuilder.select(["user.id", "user.name", "user.email", "user.role"]).addSelect("user.password").where("user.email = :email", { email }).getOne();
         if (!user) {
             return null;
         }
@@ -25,8 +25,6 @@ export class UserService {
             return null
         }
         
-        const { password: _password, ...userResponse } = user
-
         const payload = {
             id: user.id,
             email: user.email,
@@ -39,7 +37,7 @@ export class UserService {
             { expiresIn: "2m" }
         );
 
-        return { userResponse, token };
+        return { user, token };
     }
 
     async profile(id: number) {
@@ -49,7 +47,9 @@ export class UserService {
                 id: true,
                 name: true,
                 email: true,
-                role: true
+                role: true,
+                createdAt: true,
+                updatedAt: true
             }
         })
 
