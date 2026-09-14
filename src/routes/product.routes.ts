@@ -1,16 +1,17 @@
 import { Router } from "express";
 import { ProductController } from "../controllers/product.controller.ts";
+import { requireRole } from "../middlewares/auth.ts";
 
 const router = Router();
 const productController = new ProductController();
 
-router.get("/", productController.getAll);
-router.get("/:id", productController.getById);
-router.post("/create", productController.create);
-router.patch("/:id", productController.patch);
-router.delete("/:id", productController.delete);
+router.get("/", requireRole("admin", "user", "manager"), productController.getAll);
+router.get("/:id", requireRole("admin", "user", "manager"), productController.getById);
+router.post("/create", requireRole("admin", "manager"), productController.create);
+router.patch("/:id", requireRole("admin", "manager"), productController.patch);
+router.delete("/:id", requireRole("admin", "user"), productController.delete);
 
-router.post('/:id/stock', productController.updateStock);
-router.get('/:id/stock-history', productController.stockHistory);
+router.post('/:id/stock', requireRole("admin", "manager"), productController.updateStock);
+router.get('/:id/stock-history', requireRole("admin", "user"), productController.stockHistory);
 
 export default router;
