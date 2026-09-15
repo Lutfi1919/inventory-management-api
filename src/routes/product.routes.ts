@@ -5,13 +5,13 @@ import { requireRole } from "../middlewares/auth.ts";
 const router = Router();
 const productController = new ProductController();
 
-router.get("/", requireRole("admin", "user", "manager"), productController.getAll);
-router.get("/:id", requireRole("admin", "user", "manager"), productController.getById);
-router.post("/create", requireRole("admin", "manager"), productController.create);
-router.patch("/:id", requireRole("admin", "manager"), productController.patch);
-router.delete("/:id", requireRole("admin", "user"), productController.delete);
+router.get("/", requireRole("ADMIN", "USER", "MANAGER"), productController.getAll);
+router.get("/:id", requireRole("ADMIN", "USER", "MANAGER"), productController.getById);
+router.post("/create", requireRole("ADMIN", "MANAGER"), productController.create);
+router.patch("/:id", requireRole("ADMIN", "MANAGER"), productController.patch);
+router.delete("/:id", requireRole("ADMIN", "USER"), productController.delete);
 
-router.post('/:id/stock', requireRole("admin", "manager"), productController.updateStock);
-router.get('/:id/stock-history', requireRole("admin", "user"), productController.stockHistory);
+router.post('/:id/stock', requireRole("ADMIN", "MANAGER"), productController.updateStock);
+router.get('/:id/stock-history', requireRole("ADMIN", "USER"), productController.stockHistory);
 
 export default router;
