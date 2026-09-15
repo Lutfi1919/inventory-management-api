@@ -7,10 +7,15 @@ import supplierRoutes from "./routes/supplier.routes.ts";
 import productRoutes from "./routes/product.routes.ts";
 import userRoutes from "./routes/user.routes.ts";
 import { errorHandler } from "./middlewares/error-handler.ts";
-import { checkToken } from "./middlewares/auth.ts";
+import { checkToken, requireRole } from "./middlewares/auth.ts";
+import cors from "cors";
+import helmet from "helmet";
 
 const app = express();
 const port = 3000;
+
+app.use(cors());
+app.use(helmet());
 
 app.use(express.json());
 
@@ -29,6 +34,7 @@ app.use("/api/category", checkToken, categoryRoutes);
 app.use("/api/supplier", checkToken, supplierRoutes);
 app.use("/api/product", checkToken, productRoutes);
 app.use("/api/auth", userRoutes);
+app.use("/api/users", checkToken, requireRole("ADMIN"), userRoutes);
 
 app.use(errorHandler)
 
