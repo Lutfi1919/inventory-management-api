@@ -63,7 +63,7 @@ export class ProductController {
             const id = Number(req.params.id);
             const product = await this.productService.getProductById(id)
             if (!product) {
-                return res.status(400).json({ 
+                return res.status(404).json({ 
                     success: false,
                     message: `data product dengan ID ${id} tidak ditemukan`
                 })
