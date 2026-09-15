@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { UserRole } from "../types/users_roles.ts";
+import { UserStatus } from "../types/users_status.ts";
 
 @Entity()
 export class User {
@@ -36,6 +37,14 @@ export class User {
         default: UserRole.USER
     })
     role!: UserRole;
+
+    @Column({
+        nullable: false,
+        type: "enum",
+        enum: UserStatus,
+        default: UserStatus.ACTIVE
+    })
+    status!: UserStatus;
 
     @CreateDateColumn({
         type: "timestamp",
