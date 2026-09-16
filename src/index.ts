@@ -6,6 +6,7 @@ import categoryRoutes from "./routes/category.routes.ts";
 import supplierRoutes from "./routes/supplier.routes.ts";
 import productRoutes from "./routes/product.routes.ts";
 import userRoutes from "./routes/user.routes.ts";
+import authRoutes from "./routes/auth.routes.ts";
 import { errorHandler } from "./middlewares/error-handler.ts";
 import { checkToken, requireRole } from "./middlewares/auth.ts";
 import cors from "cors";
@@ -33,7 +34,7 @@ app.get("/api/health", (req: Request, res: Response) => {
 app.use("/api/category", checkToken, categoryRoutes);
 app.use("/api/supplier", checkToken, supplierRoutes);
 app.use("/api/product", checkToken, productRoutes);
-app.use("/api/auth", userRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/users", checkToken, requireRole("ADMIN"), userRoutes);
 
 app.use(errorHandler)
