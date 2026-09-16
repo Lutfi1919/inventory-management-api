@@ -1,13 +1,9 @@
 import { Router } from "express";
 import { UserController } from "../controllers/user.controller.ts";
 import { checkToken } from "../middlewares/auth.ts";
-import { limiter } from "../middlewares/rate-limiter.ts";
 
 const router = Router();
 const userController = new UserController();
-
-router.post('/register', userController.register);
-router.post('/login', limiter, userController.login);
 
 router.get('/me', checkToken, userController.profile);
 
