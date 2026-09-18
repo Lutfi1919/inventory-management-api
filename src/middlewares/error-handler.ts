@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import multer from 'multer'
 
 export const errorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
     if (error.isJoi) {
@@ -17,6 +18,20 @@ export const errorHandler = (error: any, req: Request, res: Response, next: Next
             success: false,
             message: error.message,
             error: error.message
+        });
+    }
+
+    if (error instanceof multer.MulterError) {
+        if (error.code === "LIMIT_FILE_SIZE") {
+            return res.status(400).json({
+                success: false,
+                message: "ukuran file maksimal 5 MB"
+            });
+        }
+
+        return res.status(400).json({
+            success: false,
+            message: error.message
         });
     }
 
