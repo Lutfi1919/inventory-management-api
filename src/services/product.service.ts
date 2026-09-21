@@ -3,6 +3,9 @@ import { Product } from "../entities/Product.ts";
 import { Supplier } from "../entities/Supplier.ts";
 import { Category } from "../entities/Category.ts";
 import { StockMovement } from "../entities/StockMovement.ts";
+import type { ProductImportRow } from "../types/product-import-row.ts";
+import type { ImportError } from "../types/product-import-row.ts";
+import { writeToString } from "fast-csv";
 
 export class ProductService {
     private productRepository = AppDataSource.getRepository(Product);
@@ -147,5 +150,114 @@ export class ProductService {
             where: { id: productId },
             relations: {stockMovements: true}
         });
+    }
+
+    async importProducts(rows: ProductImportRow[]) {
+        const errors: ImportError[] = [];
+        
+        const validProducts: Product[] = [];
+        const skuList: string[] = [];
+
+        for (const row of rows) {
+            try {
+                if (!row.sku || !row.name || !row.description) {
+                    throw new Error("sku, name, dan description wajib diisi");
+                }
+    
+                if (skuList.includes(row.sku)) {
+                    throw new Error(`SKU duplikat di CSV: ${row.sku}`);
+                }
+    
+                skuList.push(row.sku);
+    
+                if (!Number.isInteger(row.price) || row.price < 1) {
+                    throw new Error(`price tidak valid pada SKU ${row.sku}`);
+                }
+    
+                if (!Number.isInteger(row.stock) || row.stock < 0) {
+                    throw new Error(`stock tidak valid pada SKU ${row.sku}`);
+                }
+    
+                const category = await this.categoryRepository.findOneBy({ id: row.categoryId });
+                if (!category) {
+                    throw new Error(`category ${row.categoryId} tidak ditemukan`);
+                }
+    
+                const supplier = await this.supplierRepository.findOneBy({ id: row.supplierId });
+                if (!supplier) {
+                    throw new Error(`supplier ${row.supplierId} tidak ditemukan`);
+                }
+    
+                const existingProduct = await this.productRepository.findOneBy({
+                    sku: row.sku
+                });
+                if (existingProduct) {
+                    throw new Error(`SKU sudah terdaftar: ${row.sku}`);
+                }
+
+                const product = this.productRepository.create({
+                    sku: row.sku,
+                    name: row.name,
+                    description: row.description,
+                    price: row.price,
+                    stock: row.stock,
+                    category,
+                    supplier
+                });
+
+                validProducts.push(product);
+            } catch (error: any) {
+                errors.push({
+                    row: row.rowNumber,
+                    message: error.message
+                });
+            }
+        }
+
+        const createImportError = (message: string) => {
+            const error = new Error(message) as Error & { statusCode: number };
+            error.statusCode = 400;
+            return error;
+        };
+
+        if (validProducts.length > 0) {
+            await this.productRepository.save(validProducts);
+
+            return {
+                total: rows.length,
+                successCount: validProducts.length,
+                failedCount: errors.length,
+                errors
+            }
+        } else {
+            throw createImportError("tidak ada data yang valid untuk diimpor");
+        }
+
+    }
+
+    async exportProduct() {
+        const products = await this.productRepository.find({
+            relations: {
+                supplier: true,
+                category: true
+            }
+        });
+
+        const formattedData = products.map((product) => ({
+            sku: product.sku,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            stock: product.stock,
+            categoryId: product.category.id,
+            supplierId: product.supplier.id
+        }));
+
+        const csvString = await writeToString(formattedData, {
+            headers: true,
+            delimiter: ";"
+        });
+
+        return csvString;
     }
 }

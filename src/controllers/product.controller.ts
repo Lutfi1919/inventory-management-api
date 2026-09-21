@@ -6,6 +6,8 @@ import { Product } from "../entities/Product.ts";
 import { AppDataSource } from "../data-source.ts";
 import Joi from 'joi';
 import { InOut } from "../types/stock_movement.ts";
+import { parseString } from "fast-csv";
+import type { ProductImportRow } from "../types/product-import-row.ts";
 
 export class ProductController {
     private productService = new ProductService();
@@ -323,6 +325,95 @@ export class ProductController {
             })
         } catch (error: any) {
             next(error)
+        }
+    }
+
+    importCsv = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({
+                    success: false,
+                    message: "file CSV wajib diupload"
+                });
+            }
+
+            const expectedHeaders = [
+                "sku",
+                "name",
+                "description",
+                "price",
+                "stock",
+                "categoryId",
+                "supplierId"
+            ];
+
+            const rows: ProductImportRow[] = [];
+            let headers: string[] = [];
+            let rowNumber = 1;
+
+            parseString(req.file.buffer.toString(), {
+                headers: true,
+                trim: true,
+                ignoreEmpty: true,
+                delimiter: ";"
+            })
+            .on("headers", (fileHeaders) => {
+                headers = fileHeaders
+            })
+            .on("data", (row) => {
+                rowNumber++;
+
+                rows.push({
+                    rowNumber,
+                    sku: row.sku,
+                    name: row.name,
+                    description: row.description,
+                    price: Number(row.price),
+                    stock: Number(row.stock),
+                    categoryId: Number(row.categoryId),
+                    supplierId: Number(row.supplierId)
+                });
+            })
+            .on("end", async () => {
+                try {
+                    const isHeaderCorrect = headers.length === expectedHeaders.length && headers.every((header, index) => header === expectedHeaders[index]);
+                    if (!isHeaderCorrect) {
+                        return res.status(400).json({
+                            success: false,
+                            message: "header CSV tidak sesuai",
+                            expected: expectedHeaders
+                        });
+                    }
+
+                    const result = await this.productService.importProducts(rows);
+                    return res.status(201).json({
+                        success: true,
+                        ...result
+                    });
+                } catch (error) {
+                    next(error)
+                }
+            })
+            .on("error", (error) => {
+                next(error)
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    exportCsv = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const csvData = await this.productService.exportProduct();
+
+            const fileName = `product_export_${Date.now()}.csv`; 
+
+            res.setHeader("Content-Type", "text/csv");
+            res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+
+            return res.status(200).send(csvData);
+        } catch (error) {
+            next(error);
         }
     }
 }
