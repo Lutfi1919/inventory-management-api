@@ -1,9 +1,13 @@
 import { Router } from "express";
 import { ProductController } from "../controllers/product.controller.ts";
 import { requireRole } from "../middlewares/auth.ts";
+import { uploadCsv } from "../middlewares/upload.ts";
 
 const router = Router();
 const productController = new ProductController();
+
+router.get('/export', requireRole("ADMIN", "MANAGER"), productController.exportCsv);
+router.post('/import', requireRole("ADMIN", "MANAGER"), uploadCsv.single('file'), productController.importCsv);
 
 router.get("/", requireRole("ADMIN", "USER", "MANAGER"), productController.getAll);
 router.get("/:id", requireRole("ADMIN", "USER", "MANAGER"), productController.getById);
