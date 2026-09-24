@@ -7,10 +7,12 @@ import supplierRoutes from "./routes/supplier.routes.ts";
 import productRoutes from "./routes/product.routes.ts";
 import userRoutes from "./routes/user.routes.ts";
 import authRoutes from "./routes/auth.routes.ts";
+import paymentRoutes from "./routes/payment.routes.ts"
 import { errorHandler } from "./middlewares/error-handler.ts";
 import { checkToken, requireRole } from "./middlewares/auth.ts";
 import cors from "cors";
 import helmet from "helmet";
+import { apiKeyAuth } from "./middlewares/api-key-auth.ts";
 
 const app = express();
 const port = 3000;
@@ -36,6 +38,7 @@ app.use("/api/supplier", checkToken, supplierRoutes);
 app.use("/api/product", checkToken, productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", checkToken, requireRole("ADMIN"), userRoutes);
+app.use("/api/payments", apiKeyAuth, paymentRoutes)
 
 app.use(errorHandler)
 
