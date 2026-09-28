@@ -42,6 +42,27 @@ export class Payment {
     })
     status!: PaymentStatus
 
+    @Column({
+        type: "bigint",
+        nullable: true,
+        default: null
+    })
+    vaNumber!: number | null;
+
+    @Column({
+        type: "varchar",
+        nullable: true,
+        default: null
+    })
+    qrString!: string | null
+
+    @Column({
+        type: "bigint",
+        nullable: true,
+        default: null
+    })
+    expiredAt!: number;
+
     @CreateDateColumn({
         type: "timestamp"
     })
