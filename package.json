@@ -46,6 +46,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.2.0",
     "@types/node": "^26.4.1",
+    "@types/pdfkit": "^0.17.6",
     "@types/pg": "^8.23.1",
     "@types/qrcode": "^1.5.6",
     "@types/swagger-jsdoc": "^6.0.4",
