@@ -4,6 +4,7 @@ import { PaymentService } from '../services/payment.service.ts';
 import { PaymentMethod, PaymentStatus } from '../types/payment_types.ts';
 import exceljs from 'exceljs';
 import PDFDocument from 'pdfkit';
+import QRCode from 'qrcode';
 
 export class PaymentController {
     private paymentService = new PaymentService();
@@ -49,9 +50,9 @@ export class PaymentController {
                 formattedResponse = {
                     id: payment.id,
                     reference_key: payment.reference_key,
-                    amount: payment.amount,
-                    method: payment.method,
-                    status: payment.status,
+                    amount: "Rp. " + payment.amount.toLocaleString('id-ID'),
+                    method: payment.method.toUpperCase(),
+                    status: payment.status.toUpperCase(),
                     payment_instructions: {
                         va_number: payment.vaNumber,
                         expired_at: formattedExpiry.toLocaleString(),
@@ -61,9 +62,9 @@ export class PaymentController {
                 formattedResponse = {
                     id: payment.id,
                     reference_key: payment.reference_key,
-                    amount: payment.amount,
-                    method: payment.method,
-                    status: payment.status,
+                    amount: "Rp. " + payment.amount.toLocaleString('id-ID'),
+                    method: payment.method.toUpperCase(),
+                    status: payment.status.toUpperCase(),
                     payment_instructions: {
                         qr_string: payment.qrString,
                         qr_image: payment.qrImage,
@@ -74,9 +75,9 @@ export class PaymentController {
                 formattedResponse = {
                     id: payment.id,
                     reference_key: payment.reference_key,
-                    amount: payment.amount,
-                    method: payment.method,
-                    status: payment.status,
+                    amount: "Rp. " + payment.amount.toLocaleString('id-ID'),
+                    method: payment.method.toUpperCase(),
+                    status: payment.status.toUpperCase(),
                     expired_at: formattedExpiry.toLocaleString(),
                 }
             }
@@ -109,8 +110,9 @@ export class PaymentController {
                 message: "payment found",
                 data: {
                     reference_key: payment.reference_key,
-                    amount: payment.amount,
-                    status: payment.status
+                    amount: "Rp. " + payment.amount.toLocaleString('id-ID'),
+                    status: payment.status.toUpperCase(),
+                    expired_at: payment.expiredAt ? new Date(Number(payment.expiredAt)).toLocaleString() : null
                 }
             })
         } catch (error) {
@@ -120,9 +122,10 @@ export class PaymentController {
 
     simulatePay = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {referenceKey} = req.body;
+            const { referenceKey } = req.body;
+            const { amountPaid } = req.body;
 
-            const payment = await this.paymentService.simulatePay(referenceKey as string);
+            const payment = await this.paymentService.simulatePay(referenceKey, amountPaid);
             if (!payment) {
                 return res.status(404).json({
                     success: false,
@@ -136,9 +139,9 @@ export class PaymentController {
                 formattedResponse = {
                     id: payment.id,
                     reference_key: payment.reference_key,
-                    amount: payment.amount,
-                    method: payment.method,
-                    status: payment.status,
+                    amount: "Rp. " + payment.amount.toLocaleString('id-ID'),
+                    method: payment.method.toUpperCase(),
+                    status: payment.status.toUpperCase(),
                     va_number: payment.vaNumber,
                     created_at: payment.createdAt,
                     updated_at: payment.updatedAt
@@ -147,9 +150,9 @@ export class PaymentController {
                 formattedResponse = {
                     id: payment.id,
                     reference_key: payment.reference_key,
-                    amount: payment.amount,
-                    method: payment.method,
-                    status: payment.status,
+                    amount: "Rp. " + payment.amount.toLocaleString('id-ID'),
+                    method: payment.method.toUpperCase(),
+                    status: payment.status.toUpperCase(),
                     qr_string: payment.qrString,
                     created_at: payment.createdAt,
                     updated_at: payment.updatedAt
@@ -158,9 +161,9 @@ export class PaymentController {
                 formattedResponse = {
                     id: payment.id,
                     reference_key: payment.reference_key,
-                    amount: payment.amount,
-                    method: payment.method,
-                    status: payment.status,
+                    amount: "Rp. " + payment.amount.toLocaleString('id-ID'),
+                    method: payment.method.toUpperCase(),
+                    status: payment.status.toUpperCase(),
                     created_at: payment.createdAt,
                     updated_at: payment.updatedAt
                 }
@@ -168,7 +171,7 @@ export class PaymentController {
 
             return res.status(200).json({
                 success: true,
-                message: "berhasil membayar payment",
+                message: "berhasil melakukan pembayaran",
                 data: formattedResponse
             })
             
@@ -195,38 +198,48 @@ export class PaymentController {
                 { header: 'QR', key: 'qr', width: 30, style: { alignment: { vertical: "middle", horizontal: "center" } } },
                 { header: 'Expired Date', key: 'expiredAt', width: 30, style: { alignment: { vertical: "middle", horizontal: "center" } } },
             ]
-            
-            payments.forEach(payment => {
-                // const qrDataUrl = QRCode.toDataURL(payment.qrString as string);
-                
-                // const imageId = workbook.addImage({
-                    //     base64: qrDataUrl,
-                    //     extension: 'png',
-                    // });
+
+            for (const payment of payments) {
+                const formattedExpiry = payment.expiredAt ? new Date(Number(payment.expiredAt)).toLocaleString() : '-';
+
                 if (payment.status === PaymentStatus.PENDING && Date.now() >= payment.expiredAt) {
                     payment.status = PaymentStatus.EXPIRED
                 }
 
-                const formattedExpiry = new Date(Number(payment.expiredAt))
-                
-                worksheet.addRow({
+                const row = worksheet.addRow({
                     id: payment.id,
                     reference_key: payment.reference_key,
                     trx_id: payment.trx_id,
-                    method: payment.method,
-                    amount: payment.amount,
-                    status: payment.status,
-                    vaNumber: payment.vaNumber ? payment.vaNumber : '-',
-                    // qrString: worksheet.addImage(payment.qrImage, {
-                    //     tl: { col: 0, row: 0 },
-                    //     ext: { width: 500, height: 200 }
-                    // }),
-                    expiredAt: payment.expiredAt ? formattedExpiry.toLocaleString() : '-',
-                }).alignment = {
+                    method: payment.method.toUpperCase(),
+                    amount: "Rp. " + payment.amount.toLocaleString('id-ID'),
+                    status: payment.status.toUpperCase(),
+                    vaNumber: payment.vaNumber ?? '-',
+                    qr: payment.qrString ? '' : '-',
+                    expiredAt: formattedExpiry,
+                });
+
+                row.height = 100;
+                row.alignment = {
                     vertical: 'middle',
-                    horizontal: 'center'
+                    horizontal: 'center',
+                };
+
+                if (payment.qrString) {
+                    const qrDataUrl = await QRCode.toDataURL(payment.qrString);
+                    const qrBase64 = qrDataUrl.slice(qrDataUrl.indexOf(",") + 1);
+
+                    const imageId = workbook.addImage({
+                        base64: qrBase64,
+                        extension: "png",
+                    });
+
+                    worksheet.addImage(imageId, {
+                        tl: { col: 7, row: row.number - 1 },
+                        ext: { width: 80, height: 80 },
+                        editAs: "oneCell"
+                    });
                 }
-            });
+            }
 
             res.setHeader(
                 'Content-Type',
@@ -249,15 +262,46 @@ export class PaymentController {
 
     reportPdf = async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const payments = await this.paymentService.getPayments();
             const doc = new PDFDocument();
+            const today = Date.now()
 
             res.setHeader("Content-Type", "application/pdf");
             res.setHeader("Content-Disposition", "attachment; filename=payments.pdf");
-            
+
             doc.pipe(res);
             
-            const payments = await this.paymentService.getPayments();
-            
+            doc.fontSize(18).text("LAPORAN DATA PAYMENT", { align: "center" });
+            doc.moveDown();
+
+            doc.fontSize(10).text(`Tanggal Export: ${new Date(today).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`).text(`Total Payment: ${payments.length}`);
+            doc.moveDown();
+
+            payments.forEach((payment, index) => {
+                const details = [
+                    `${index + 1}. Ref Key: ${payment.reference_key}`,
+                    `Transaksi: ${payment.trx_id} | Metode: ${payment.method}`,
+                    `Jumlah: ${new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        maximumFractionDigits: 0,
+                    }).format(payment.amount)} | Status: ${payment.status}`,
+                    `VA: ${payment.vaNumber ?? "-"} | Kedaluwarsa: ${payment.expiredAt ? new Date(Number(payment.expiredAt)).toLocaleString("id-ID") : "-"}`,
+                ].join("\n");
+
+                const blockHeight = 65;
+                const pageBottom = doc.page.height - doc.page.margins.bottom;
+
+                if (doc.y + blockHeight > pageBottom) {
+                    doc.addPage();
+                }
+
+                doc.fontSize(10).text(details);
+                doc.moveDown();
+            })
+
+            doc.end();
+
         } catch (error) {
             next(error)
         }
