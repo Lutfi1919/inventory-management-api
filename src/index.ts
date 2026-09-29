@@ -12,7 +12,6 @@ import { errorHandler } from "./middlewares/error-handler.ts";
 import { checkToken, requireRole } from "./middlewares/auth.ts";
 import cors from "cors";
 import helmet from "helmet";
-import { apiKeyAuth } from "./middlewares/api-key-auth.ts";
 
 const app = express();
 const port = 3000;
@@ -38,7 +37,7 @@ app.use("/api/supplier", checkToken, supplierRoutes);
 app.use("/api/product", checkToken, productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", checkToken, requireRole("ADMIN"), userRoutes);
-app.use("/api/payments", apiKeyAuth, paymentRoutes)
+app.use("/api/payments", paymentRoutes)
 
 app.use(errorHandler)
 
