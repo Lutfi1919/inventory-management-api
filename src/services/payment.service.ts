@@ -33,7 +33,7 @@ export class PaymentService {
         let vaNumber: number | null = null;
 
         if (paymentData.method === PaymentMethod.QRIS) {
-            qrString =  `https://payment.example.com/pay/${referenceKey}`
+            qrString =  `http://${process.env.IP_LAPTOP}:3000/api/payments/status/${referenceKey}`
 
             qrImage = await QRCode.toDataURL(qrString);
         } else if (paymentData.method === PaymentMethod.TF) {
@@ -46,7 +46,7 @@ export class PaymentService {
             status: paymentData.method === PaymentMethod.CASH ? PaymentStatus.PAID : PaymentStatus.PENDING,
             qrString,
             vaNumber,
-            expiredAt: Date.now() + 3 * 60 * 1000
+            expiredAt: Date.now() + 8 * 60 * 1000
         });
 
         const payment = await this.paymentRepository.save(newPayment);
@@ -75,7 +75,7 @@ export class PaymentService {
         return payment;
     }
 
-    async simulatePay(refKey: string) {
+    async simulatePay(refKey: string, amountPaid?: number) {
         const payment = await this.paymentRepository.findOne({
             where: {
                 reference_key: refKey
@@ -85,15 +85,25 @@ export class PaymentService {
             return null
         }
 
+        const createPaymentError = (message: string) => {
+            const error = new Error(message) as Error & { statusCode: number };
+            error.statusCode = 400;
+            return error;
+        };
+
+        if (amountPaid as number !== payment.amount) {
+            throw createPaymentError('gagal melakukan pembayaran')
+        }
+
         if (payment.status === PaymentStatus.PAID) {
-            throw new Error('payment sudah dibayar sebelumnya!')
+            throw createPaymentError('payment sudah dibayar sebelumnya!')
         } 
 
         else if (payment.status === PaymentStatus.PENDING && Date.now() >= payment.expiredAt ) {
             payment.status = PaymentStatus.EXPIRED
             await this.paymentRepository.save(payment);
 
-            throw new Error('payment telah expired!')
+            throw createPaymentError('payment telah expired!')
         }
 
         payment.status = PaymentStatus.PAID
