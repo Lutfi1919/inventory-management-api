@@ -42,6 +42,12 @@ export class PaymentController {
             }
 
             const payment = await this.paymentService.createPayment(value);
+            if (!payment) {
+                return res.status(404).json({
+                    success: false,
+                    message: "transaction not found"
+                })
+            }
 
             const formattedExpiry = new Date(Number(payment.expiredAt))
             let formattedResponse = {}
