@@ -5,6 +5,12 @@ import { PaymentMethod, PaymentStatus } from "../types/payment_types.ts";
 import axios from 'axios'
 import QRCode from 'qrcode'
 
+const createPaymentError = (statusCode: number, message: string) => {
+    const error = new Error(message) as Error & { statusCode: number };
+    error.statusCode = statusCode;
+    return error;
+};
+
 export class PaymentService {
     private paymentRepository = AppDataSource.getRepository(Payment);
 
@@ -13,15 +19,21 @@ export class PaymentService {
     }
 
     async checkTransaction(trxId: string) {
-        const response = await axios.get(
-            `${process.env.GER_API_URL}/..../${trxId}`, {
-                headers: {
-                    "x-api-key": process.env.GER_API_KEY
-                }
+        try {
+            const token = "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbjAyIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzkwNzM2ODI4LCJleHAiOjE3OTA4MjMyMjh9.7maQ3qA7u9fTEey-ID0UVWdwZ2GypnbJU_voQjZB8y5pi9rVvnhr_rqtlXQsftzH"
+            
+            const { data } = await axios.get(
+                `${process.env.GER_API_URL?.replace(/\/+$/, "")}/transactions/${encodeURIComponent(trxId)}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            return data;
+        } catch (error: any) {
+            if (axios.isAxiosError(error) && error.response?.status === 404) {
+                return null;
             }
-        )
-
-        return response.data
+            throw error;
+        }
     }
 
     async createPayment(paymentData: Payment) {
@@ -31,6 +43,11 @@ export class PaymentService {
         let qrImage: string | null = null;
 
         let vaNumber: number | null = null;
+
+        const checkTrx = await this.checkTransaction(paymentData.trx_id);
+        if (!checkTrx) {
+            throw createPaymentError(404,'transaction not found!')
+        }
 
         if (paymentData.method === PaymentMethod.QRIS) {
             qrString =  `http://${process.env.IP_LAPTOP}:3000/api/payments/status/${referenceKey}`
@@ -85,25 +102,19 @@ export class PaymentService {
             return null
         }
 
-        const createPaymentError = (message: string) => {
-            const error = new Error(message) as Error & { statusCode: number };
-            error.statusCode = 400;
-            return error;
-        };
-
         if (amountPaid as number !== payment.amount) {
-            throw createPaymentError('gagal melakukan pembayaran')
+            throw createPaymentError(400, 'gagal melakukan pembayaran')
         }
 
         if (payment.status === PaymentStatus.PAID) {
-            throw createPaymentError('payment sudah dibayar sebelumnya!')
+            throw createPaymentError(400, 'payment sudah dibayar sebelumnya!')
         } 
 
         else if (payment.status === PaymentStatus.PENDING && Date.now() >= payment.expiredAt ) {
             payment.status = PaymentStatus.EXPIRED
             await this.paymentRepository.save(payment);
 
-            throw createPaymentError('payment telah expired!')
+            throw createPaymentError(400, 'payment telah expired!')
         }
 
         payment.status = PaymentStatus.PAID
