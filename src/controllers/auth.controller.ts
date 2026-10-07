@@ -43,7 +43,7 @@ export class AuthController {
 
             return res.status(201).json({
                 success: true,
-                message: "berhasil register user",
+                message: "Berhasil register User",
                 data: userResponse
             })
         } catch (error) {
@@ -73,20 +73,20 @@ export class AuthController {
             if (!result) {
                 return res.status(400).json({
                     success: false,
-                    message: "email atau password salah"
+                    message: "Email atau Password salah"
                 });
             }
 
             if (result.inactive) {
                 return res.status(403).json({
                     success: false,
-                    message: "akun anda dinonaktifkan"
+                    message: "Akun anda dinonaktifkan"
                 });
             }
 
             return res.status(200).json({
                 success: true,
-                message: "berhasil login",
+                message: "Berhasil login",
                 data: {
                     user: {
                         id: result.user!.id,

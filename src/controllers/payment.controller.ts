@@ -37,7 +37,7 @@ export class PaymentController {
             if (paymentData.amount < 0) {
                 return res.status(400).json({
                     success: false,
-                    message: "amount tidak boleh negatif"
+                    message: "Amount tidak boleh negatif!"
                 })
             }
 
@@ -45,7 +45,7 @@ export class PaymentController {
             if (!payment) {
                 return res.status(404).json({
                     success: false,
-                    message: "transaction not found"
+                    message: "Transaction not found!"
                 })
             }
 
@@ -90,7 +90,7 @@ export class PaymentController {
 
             return res.status(201).json({ 
                 success: true,
-                message: "berhasil membuat payment", 
+                message: "Berhasil membuat Payment", 
                 data: formattedResponse
             })
 
@@ -107,13 +107,13 @@ export class PaymentController {
             if (!payment) {
                 return res.status(404).json({
                     success: false,
-                    message: "payment not found"
+                    message: "Payment not found!"
                 })
             }
 
             return res.status(200).json({
                 success: true,
-                message: "payment found",
+                message: "Payment found",
                 data: {
                     reference_key: payment.reference_key,
                     amount: "Rp. " + payment.amount.toLocaleString('id-ID'),
@@ -135,7 +135,7 @@ export class PaymentController {
             if (!payment) {
                 return res.status(404).json({
                     success: false,
-                    message: "payment not found"
+                    message: "Payment not found"
                 })
             }
 
@@ -177,7 +177,7 @@ export class PaymentController {
 
             return res.status(200).json({
                 success: true,
-                message: "berhasil melakukan pembayaran",
+                message: "Berhasil melakukan pembayaran",
                 data: formattedResponse
             })
             
@@ -196,7 +196,7 @@ export class PaymentController {
             worksheet.columns = [
                 { header: 'Payment ID', key: 'id', width: 15, style: { alignment: { vertical: "middle", horizontal: "center" } } },
                 { header: 'Reference Key', key: 'reference_key', width: 50, style: { alignment: { vertical: "middle", horizontal: "center" } } },
-                { header: 'Transaction ID', key: 'trx_id', width: 25, style: { alignment: { vertical: "middle", horizontal: "center" } } },
+                { header: 'Transaction ID', key: 'trx_id', width: 35, style: { alignment: { vertical: "middle", horizontal: "center" } } },
                 { header: 'Payment Method', key: 'method', width: 30, style: { alignment: { vertical: "middle", horizontal: "center" } } },
                 { header: 'Amount', key: 'amount', width: 30, style: { alignment: { vertical: "middle", horizontal: "center" } } },
                 { header: 'Status', key: 'status', width: 30, style: { alignment: { vertical: "middle", horizontal: "center" } } },
@@ -284,14 +284,18 @@ export class PaymentController {
             doc.moveDown();
 
             payments.forEach((payment, index) => {
+                if (payment.status === PaymentStatus.PENDING && Date.now() >= payment.expiredAt) {
+                    payment.status = PaymentStatus.EXPIRED
+                }
+
                 const details = [
                     `${index + 1}. Ref Key: ${payment.reference_key}`,
-                    `Transaksi: ${payment.trx_id} | Metode: ${payment.method}`,
+                    `Transaksi: ${payment.trx_id} | Metode: ${payment.method.toUpperCase()}`,
                     `Jumlah: ${new Intl.NumberFormat("id-ID", {
                         style: "currency",
                         currency: "IDR",
                         maximumFractionDigits: 0,
-                    }).format(payment.amount)} | Status: ${payment.status}`,
+                    }).format(payment.amount)} | Status: ${payment.status.toUpperCase()}`,
                     `VA: ${payment.vaNumber ?? "-"} | Kedaluwarsa: ${payment.expiredAt ? new Date(Number(payment.expiredAt)).toLocaleString("id-ID") : "-"}`,
                 ].join("\n");
 

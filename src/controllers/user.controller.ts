@@ -44,7 +44,7 @@ export class UserController {
             if (!user) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `user dengan ID ${id} tidak ditemukan`
+                    message: `Data User dengan ID ${id} tidak ditemukan`
                 })
             }
 
@@ -106,7 +106,7 @@ export class UserController {
 
             return res.status(201).json({
                 success: true,
-                message: "berhasil membuat user",
+                message: "Berhasil membuat user",
                 data: userResponse
             }) 
         } catch (error) {
@@ -153,7 +153,7 @@ export class UserController {
             if (!user) {
                 return res.status(404).json({
                     success: false,
-                    message: `user dengan ID: ${id} tidak ditemukan`
+                    message: `Data User dengan ID: ${id} tidak ditemukan`
                 })
             }
 
@@ -169,7 +169,7 @@ export class UserController {
 
             return res.status(201).json({ 
                 success: true,
-                message: "berhasil meng-updte user", 
+                message: "Berhasil meng-update data User", 
                 data: userResponse,
             })
         } catch (error) {
@@ -184,13 +184,13 @@ export class UserController {
             if (!user) {
                 return res.status(404).json({
                     success: false,
-                    message: `user with ID: ${id} not found`
+                    message: `Data User dengan ID: ${id} tidak ditemukan`
                 })
             }
 
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil menghapus user berdasarkan ID" 
+                message: "Berhasil menghapus data User berdasarkan ID" 
             })
         } catch (error) {
             next(error)

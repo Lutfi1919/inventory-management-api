@@ -10,7 +10,7 @@ export class SupplierController {
             const suppliers = await this.supplierService.getAllSupplier()
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengambil data",
+                message: "Berhasil mengambil data Supplier",
                 data: suppliers
             })
         } catch (error: any) {
@@ -25,12 +25,12 @@ export class SupplierController {
             if (!supplier) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data Supplier dengan ID: ${id} not found` 
+                    message: `Data Supplier dengan ID: ${id} tidak ditemukan` 
                 })
             }
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengambil data Supplier berdasarkan ID", 
+                message: "Berhasil mengambil data Supplier berdasarkan ID", 
                 data: supplier 
             })
         } catch (error: any) {
@@ -55,7 +55,7 @@ export class SupplierController {
 
             return res.status(201).json({ 
                 success: true,
-                message: "berhasil membuat data supplier", 
+                message: "Berhasil membuat data supplier", 
                 data: supplier 
             })
         } catch (error: any) {
@@ -71,7 +71,7 @@ export class SupplierController {
             if (!supplier) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data dengan ID ${id} tidak ditemukan` 
+                    message: `Data Supplier dengan ID ${id} tidak ditemukan` 
                 })
             }
             
@@ -90,7 +90,7 @@ export class SupplierController {
             
             return res.status(201).json({ 
                 success: true,
-                message: `data dengan ID ${id} berhasil di update`,
+                message: `Data Supplier dengan ID ${id} berhasil di update`,
                 data: supplier 
             })
         } catch (error: any) {
@@ -105,12 +105,12 @@ export class SupplierController {
             if (!supplier) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data Supplier dengan ID: ${id} tidak ditemukan` 
+                    message: `Data Supplier dengan ID: ${id} tidak ditemukan` 
                 })
             }
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil menghapus data Supplier berdasarkan ID" 
+                message: "Berhasil menghapus data Supplier berdasarkan ID" 
             })
         } catch (error: any) {
             next(error)
