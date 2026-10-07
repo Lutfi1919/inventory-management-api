@@ -36,7 +36,7 @@ export class ProductController {
             if (page > totalPages) {
                 return res.status(400).json({ 
                     success: false,
-                    message: `page ${page} melebihi total page ${totalPages}` 
+                    message: `Page ${page} melebihi total page ${totalPages}` 
                 })
             } 
 
@@ -51,7 +51,7 @@ export class ProductController {
 
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengambil data", 
+                message: "Berhasil mengambil data", 
                 data: products, 
                 meta
             })
@@ -67,13 +67,13 @@ export class ProductController {
             if (!product) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data product dengan ID ${id} tidak ditemukan`
+                    message: `Data Product dengan ID ${id} tidak ditemukan`
                 })
             }
 
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengambil data berdasarkan ID", 
+                message: "Berhasil mengambil data berdasarkan ID", 
                 data: product
             })
         } catch (error: any) {
@@ -89,7 +89,7 @@ export class ProductController {
             if (!category) {
                 return res.status(404).json({
                     success: false,
-                    message: `data category dengan ID ${categoryId} tidak ditemukan`
+                    message: `Data Category dengan ID ${categoryId} tidak ditemukan`
                 })
             }
 
@@ -97,7 +97,7 @@ export class ProductController {
             if (!supplier) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data supplier dengan ID ${supplierId} tidak ditemukan`
+                    message: `Data Supplier dengan ID ${supplierId} tidak ditemukan`
                 })
             }
 
@@ -142,7 +142,7 @@ export class ProductController {
 
             return res.status(201).json({ 
                 success: true,
-                message: "berhasil membuat data product", 
+                message: "Berhasil membuat data Product", 
                 data: product
             })
         } catch (error: any) {
@@ -159,7 +159,7 @@ export class ProductController {
             if (!category) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data category dengan ID ${categoryId} tidak ditemukan`,
+                    message: `Data Category dengan ID ${categoryId} tidak ditemukan`,
                 })
             }
 
@@ -167,7 +167,7 @@ export class ProductController {
             if (!supplier) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data supplier dengan ID ${supplierId} tidak ditemukan`, 
+                    message: `Data Supplier dengan ID ${supplierId} tidak ditemukan`, 
                 })
             }
 
@@ -212,13 +212,13 @@ export class ProductController {
             if (!product) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data dengan ID ${id} tidak ditemukan`,
+                    message: `Data Product dengan ID ${id} tidak ditemukan`,
                 })
             }
 
             return res.status(201).json({ 
                 success: true,
-                message: "berhasil meng-updte data Product", 
+                message: "Berhasil meng-update data Product", 
                 data: product,
             })
         } catch (error: any) {
@@ -233,13 +233,13 @@ export class ProductController {
             if (!product) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data dengan ID ${id} tidak ditemukan` 
+                    message: `Data Product dengan ID ${id} tidak ditemukan` 
                 })
             }
 
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil menghapus produk" 
+                message: "Berhasil menghapus data Product" 
             })
 
         } catch (error: any) {
@@ -255,7 +255,7 @@ export class ProductController {
             if (!product) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `product dengan ID: ${id} tidak ditemukan` 
+                    message: `Data Product dengan ID: ${id} tidak ditemukan` 
                 });
             }
 
@@ -289,7 +289,7 @@ export class ProductController {
             } else if (stockMovementData.type === "OUT" && stockMovementData.quantity > product.stock) {
                 return res.status(400).json({ 
                     success: false,
-                    message: `tidak boleh mengambil stock lebih dari jumlah yang tersedia: ${product.stock}` 
+                    message: `Tidak boleh mengambil stock lebih dari jumlah yang tersedia: ${product.stock}` 
                 })
             }
 
@@ -297,7 +297,7 @@ export class ProductController {
 
             return res.status(201).json({ 
                 success: true,
-                message: "berhasil membuat movement stock dan mengubah stock product", 
+                message: "Berhasil membuat movement stock dan mengubah stock product", 
                 data: stockMovement
             })
             
@@ -314,13 +314,13 @@ export class ProductController {
             if (!data) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `product dengan ID: ${id} tidak ditemukan` 
+                    message: `Data Product dengan ID: ${id} tidak ditemukan` 
                 })
             }
 
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengambil data Stock History", 
+                message: "Berhasil mengambil data Stock History", 
                 data 
             })
         } catch (error: any) {
@@ -333,7 +333,7 @@ export class ProductController {
             if (!req.file) {
                 return res.status(400).json({
                     success: false,
-                    message: "file CSV wajib diupload"
+                    message: "File CSV wajib diupload"
                 });
             }
 
@@ -380,7 +380,7 @@ export class ProductController {
                     if (!isHeaderCorrect) {
                         return res.status(400).json({
                             success: false,
-                            message: "header CSV tidak sesuai",
+                            message: "Header CSV tidak sesuai",
                             expected: expectedHeaders
                         });
                     }

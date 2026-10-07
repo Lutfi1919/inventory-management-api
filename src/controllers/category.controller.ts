@@ -11,12 +11,12 @@ export class CategoryController {
             if (!categories) {
                 return res.status(404).json({ 
                     success: false,
-                    message: "data Category tidak ditemukan" 
+                    message: "Data Category tidak ditemukan" 
                 })
             }
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengambil data Categories", 
+                message: "Berhasil mengambil data Categories", 
                 data: categories
             })
         } catch (error: any) {
@@ -31,13 +31,13 @@ export class CategoryController {
             if (!category) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data category dengan ID ${id} tidak ditemukan` 
+                    message: `Data Category dengan ID ${id} tidak ditemukan` 
                 })
             }
 
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil mengambil data Category berdasarkan ID", 
+                message: "Berhasil mengambil data Category berdasarkan ID", 
                 data: category 
             })
         } catch (error: any) {
@@ -61,7 +61,7 @@ export class CategoryController {
             const category = await this.categoryService.createCategory(value)
             return res.status(201).json({ 
                 success: true,
-                message: "berhasil menmbuat data Category", 
+                message: "Berhasil membuat Data Category", 
                 data: category
             })
         } catch (error: any) {
@@ -76,13 +76,13 @@ export class CategoryController {
             if (!updatedCategory) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data dengan ID ${id} tidak ditemukan` 
+                    message: `Data Category dengan ID ${id} tidak ditemukan` 
                 })
             }
 
             return res.status(200).json({ 
                 success: true,
-                message: "berhasil meng-update data Category", 
+                message: "Berhasil meng-update data Category", 
                 data: updatedCategory 
             })
         } catch (error: any) {
@@ -97,12 +97,12 @@ export class CategoryController {
             if (!category) {
                 return res.status(404).json({ 
                     success: false,
-                    message: `data dengan ID ${id} tidak ditemukan` 
+                    message: `Data Category dengan ID ${id} tidak ditemukan` 
                 })
             }
-            return res.status(201).json({ 
+            return res.status(200).json({ 
                 success: true,
-                message: "berhasil menghapus data" 
+                message: "Berhasil menghapus data Category"
             })
         } catch (error: any) {
             next(error)
